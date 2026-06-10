@@ -1,0 +1,29 @@
+# Deploy infra to staging (stg) environment
+# Triggered by tags matching v*-infra-rc.* (e.g. v0.1.0-infra-rc.1).
+
+name: deploy-infra-staging
+
+on:
+  push:
+    tags:
+      - 'v*-infra-rc.*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag or ref to deploy (e.g. v0.1.0-infra-rc.1)'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-infra-staging
+  cancel-in-progress: false
+
+jobs:
+  call-deploy-infra:
+    uses: ./.github/workflows/_deploy-infra.yml
+    with:
+      environment: stg
+      tag: ${{ inputs.tag || github.ref_name }}

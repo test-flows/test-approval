@@ -1,0 +1,73 @@
+# Deploy app to production (prod) environment
+#
+# Triggered by tags matching vX.Y.Z (digits only).
+#
+# IMPORTANT: GitHub tag filters do NOT support negative patterns. The 'guard'
+# job below is the authoritative pre-release filter — it inspects
+# github.ref_name and exits 0 (success, no deploy) when the tag is a
+# pre-release or infra tag. Only true release tags (vX.Y.Z) reach the
+# 'deploy' job and the 'prod' Environment approval gate.
+
+name: deploy-app-prod
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: deploy-app-prod
+  cancel-in-progress: false
+
+jobs:
+  guard:
+    name: filter-pre-release-tags
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    outputs:
+      is_release: ${{ steps.check.outputs.is_release }}
+    steps:
+      - id: check
+        name: Check tag is a production release (not pre-release / not infra)
+        env:
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          echo "Tag pushed: ${REF_NAME}"
+
+          if [[ "${REF_NAME}" == *-dev.* ]]; then
+            echo "Tag '${REF_NAME}' is a -dev.* pre-release. Skipping prod deploy."
+            echo "is_release=false" >> "${GITHUB_OUTPUT}"
+            exit 0
+          fi
+          if [[ "${REF_NAME}" == *-rc.* ]]; then
+            echo "Tag '${REF_NAME}' is a -rc.* pre-release. Skipping prod deploy."
+            echo "is_release=false" >> "${GITHUB_OUTPUT}"
+            exit 0
+          fi
+          if [[ "${REF_NAME}" == *-infra* ]]; then
+            echo "Tag '${REF_NAME}' is an infra tag. Skipping app prod deploy."
+            echo "is_release=false" >> "${GITHUB_OUTPUT}"
+            exit 0
+          fi
+
+          if [[ ! "${REF_NAME}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Tag '${REF_NAME}' does not match strict release pattern vX.Y.Z. Skipping prod deploy."
+            echo "is_release=false" >> "${GITHUB_OUTPUT}"
+            exit 0
+          fi
+
+          echo "Tag '${REF_NAME}' is a production release. Proceeding to prod deploy gate."
+          echo "is_release=true" >> "${GITHUB_OUTPUT}"
+
+  deploy:
+    needs: guard
+    if: needs.guard.outputs.is_release == 'true'
+    uses: ./.github/workflows/_deploy-app.yml
+    with:
+      environment: prod
+      tag: ${{ github.ref_name }}

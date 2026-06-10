@@ -1,0 +1,34 @@
+# =============================================================================
+# CODEOWNERS / コードオーナー定義
+# -----------------------------------------------------------------------------
+# Declares the GitHub teams that are automatically requested for review on PRs
+# touching the matching paths. Combined with the "Require review from Code
+# Owners" branch protection rule, it enforces who must approve which paths.
+#
+# このファイルは、PR が該当パスを変更したときに自動でレビュー依頼される
+# GitHub チームを宣言します。ブランチ保護の "Require review from Code Owners"
+# と組み合わせることで、強制レビューの対象を決定します。
+#
+# Notes / 注意事項:
+#   - The LAST matching pattern wins (GitHub CODEOWNERS semantics).
+#     最後にマッチしたパターンが採用されます (GitHub の仕様)。
+#   - Replace <YOUR_ORG> with your actual GitHub organization slug.
+#     <YOUR_ORG> は実際の GitHub Organization slug に置き換えてください。
+#   - Team names must exist in the org and have write access to this repo.
+#     指定するチームは Org に存在し、本 repo への write 権限が必要です。
+# =============================================================================
+
+# Default owner / デフォルトオーナー
+*                       @<YOUR_ORG>/admin-team
+
+# CI/CD workflows and repo meta files / CI/CD と repo メタ設定
+/.github/               @<YOUR_ORG>/admin-team
+
+# Infrastructure as Code / IaC
+/infra/                 @<YOUR_ORG>/admin-team
+
+# Application source / アプリケーションソース
+/app/                   @<YOUR_ORG>/developer-team @<YOUR_ORG>/admin-team
+
+# Tenant onboarding manifests / テナント定義
+/tenants/               @<YOUR_ORG>/admin-team

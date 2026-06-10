@@ -1,0 +1,42 @@
+# Reusable workflow for infra deploy
+name: _deploy-infra
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: "Target environment (dev / stg / prod)"
+        required: true
+        type: string
+      tag:
+        description: "Git tag being deployed"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  deploy-infra:
+    name: deploy-infra (${{ inputs.environment }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    environment: ${{ inputs.environment }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Announce context
+        run: |
+          echo "[C: tenant onboarding / infra update] env=${{ inputs.environment }} tag=${{ inputs.tag }} sha=${{ github.sha }} actor=${{ github.actor }}"
+
+      - name: Pretend cdk deploy
+        run: |
+          echo "Pretending to cdk deploy <YOUR_ORG>/<YOUR_REPO> infra stacks for env=${{ inputs.environment }} tag=${{ inputs.tag }}"
+
+      - name: Pretend tenant registry insert
+        run: |
+          echo "Pretending to insert tenant_registry rows for env=${{ inputs.environment }} from tenants/tenants-${{ inputs.environment }}.yaml"
+
+      - name: Done
+        run: echo done

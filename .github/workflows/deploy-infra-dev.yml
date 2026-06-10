@@ -1,0 +1,29 @@
+# Deploy infra to dev environment
+# Triggered by tags matching v*-infra-dev.* (e.g. v0.1.0-infra-dev.1).
+
+name: deploy-infra-dev
+
+on:
+  push:
+    tags:
+      - 'v*-infra-dev.*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag or ref to deploy (e.g. v0.1.0-infra-dev.1)'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-infra-dev
+  cancel-in-progress: false
+
+jobs:
+  call-deploy-infra:
+    uses: ./.github/workflows/_deploy-infra.yml
+    with:
+      environment: dev
+      tag: ${{ inputs.tag || github.ref_name }}

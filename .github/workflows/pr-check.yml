@@ -1,0 +1,67 @@
+name: pr-check
+
+on:
+  pull_request:
+    branches:
+      - main
+      - release
+      - dev
+  push:
+    branches:
+      - dev
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr-check-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run lint (dummy)
+        run: |
+          echo "[lint] running lint checks (dummy)"
+          echo "repo=<YOUR_ORG>/<YOUR_REPO>"
+          echo "ref=${GITHUB_REF}"
+          echo "sha=${GITHUB_SHA}"
+          echo "lint OK"
+
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run tests (dummy)
+        run: |
+          echo "[test] running unit tests (dummy)"
+          echo "repo=<YOUR_ORG>/<YOUR_REPO>"
+          echo "ref=${GITHUB_REF}"
+          echo "sha=${GITHUB_SHA}"
+          echo "test OK"
+
+  build-check:
+    name: build-check
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run build check (dummy)
+        run: |
+          echo "[build-check] running build check (dummy)"
+          echo "repo=<YOUR_ORG>/<YOUR_REPO>"
+          echo "ref=${GITHUB_REF}"
+          echo "sha=${GITHUB_SHA}"
+          echo "build-check OK"

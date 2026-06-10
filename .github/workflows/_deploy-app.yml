@@ -1,0 +1,43 @@
+name: _deploy-app
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: "Target GitHub Environment (dev / stg / prod)"
+        required: true
+        type: string
+      tag:
+        description: "Git tag that triggered this deploy (e.g. v1.2.3-dev.1)"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    # NOTE:
+    #   The `environment:` key MUST be on the JOB level (not on a step).
+    #   This is what wires the job to the GitHub Environment and makes the
+    #   "Required reviewers" / "Wait timer" / "Deployment branches" protections
+    #   actually fire. Without this line the approval gate will silently NOT run.
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Announce deploy target
+        run: |
+          echo "[A: app update] env=${{ inputs.environment }} tag=${{ inputs.tag }} sha=${{ github.sha }} actor=${{ github.actor }}"
+
+      - name: Pretend to deploy app (dummy)
+        run: |
+          echo "Pretending to docker build / ecr push / ecs update-service ..."
+          echo "  (no AWS CLI / no docker / no CDK is actually invoked here)"
+          echo "  repo=<YOUR_ORG>/<YOUR_REPO> environment=${{ inputs.environment }} tag=${{ inputs.tag }}"
+
+      - name: Done
+        run: echo done

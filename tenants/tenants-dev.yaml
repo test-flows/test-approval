@@ -1,0 +1,9 @@
+# Minimal generic tenant definition sample for dev environment.
+# Used by the deploy-infra workflow as a placeholder input.
+tenants:
+  - tenant_id: t001
+    schema_name: tenant_001
+    status: active
+  - tenant_id: t002
+    schema_name: tenant_002
+    status: provisioning

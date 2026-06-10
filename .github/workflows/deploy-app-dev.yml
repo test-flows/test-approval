@@ -1,0 +1,26 @@
+# Deploy app to dev environment
+# Triggered by tags matching v*-dev.* (e.g. v1.2.3-dev.1).
+# Replace <YOUR_ORG>/<YOUR_REPO> placeholders in CODEOWNERS / branch protection
+# settings before using in a real repository.
+
+name: deploy-app-dev
+
+on:
+  push:
+    tags:
+      - 'v*-dev.*'
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: deploy-app-dev
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    uses: ./.github/workflows/_deploy-app.yml
+    with:
+      environment: dev
+      tag: ${{ github.ref_name }}

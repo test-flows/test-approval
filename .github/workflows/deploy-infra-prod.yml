@@ -1,0 +1,48 @@
+# Deploy infra to production (prod) environment
+#
+# Canonical infra-prod tag shape: vX.Y.Z-infra.N (e.g. v0.1.0-infra.1).
+# The 'guard' job rejects pre-release variants slipping through the glob.
+
+name: deploy-infra-prod
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+-infra.[0-9]+'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag or ref to deploy (e.g. v1.2.3-infra.1)'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-infra-prod
+  cancel-in-progress: false
+
+jobs:
+  guard-prerelease:
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    steps:
+      - name: Reject pre-release tags
+        env:
+          REF_NAME: ${{ inputs.tag || github.ref_name }}
+        run: |
+          set -euo pipefail
+          echo "Validating tag: ${REF_NAME}"
+          if echo "${REF_NAME}" | grep -Eq -- '-(dev|rc|alpha|beta|pre)(\.|$)'; then
+            echo "::error::Pre-release tag '${REF_NAME}' is not allowed for prod deploy."
+            exit 1
+          fi
+          echo "Tag '${REF_NAME}' accepted as a prod infra release tag."
+
+  call-deploy-infra:
+    needs: guard-prerelease
+    uses: ./.github/workflows/_deploy-infra.yml
+    with:
+      environment: prod
+      tag: ${{ inputs.tag || github.ref_name }}
