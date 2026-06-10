@@ -1,1 +1,1 @@
-sample app v0.0.1
+sample app v0.0.2
