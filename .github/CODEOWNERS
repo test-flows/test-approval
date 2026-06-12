@@ -19,16 +19,16 @@
 # =============================================================================
 
 # Default owner / デフォルトオーナー
-*                       @<YOUR_ORG>/admin-team
+*                       @test-flows/test
 
 # CI/CD workflows and repo meta files / CI/CD と repo メタ設定
-/.github/               @<YOUR_ORG>/admin-team
+/.github/               @test-flows/test
 
 # Infrastructure as Code / IaC
-/infra/                 @<YOUR_ORG>/admin-team
+/infra/                 @test-flows/test
 
 # Application source / アプリケーションソース
-/app/                   @<YOUR_ORG>/developer-team @<YOUR_ORG>/admin-team
+/app/                   @test-flows/test 
 
 # Tenant onboarding manifests / テナント定義
-/tenants/               @<YOUR_ORG>/admin-team
+/tenants/               @test-flows/test
